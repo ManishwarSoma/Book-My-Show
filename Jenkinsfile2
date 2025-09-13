@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        SCANNER_HOME = tool 'sonarqube-scanner'
+        SCANNER_HOME = tool 'sonar-scanner'
         DOCKER_IMAGE = 'manishwarsoma/bms:latest'
         EKS_CLUSTER_NAME = 'my-demo-eks'
         AWS_REGION = 'ap-northeast-3'
@@ -65,7 +65,7 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                    withDockerRegistry([credentialsId: 'docker', url: 'https://index.docker.io/v1/']) {
                         sh ''' 
                         echo "Building Docker image..."
                         docker build --no-cache -t $DOCKER_IMAGE -f bookmyshow-app/Dockerfile bookmyshow-app
@@ -92,8 +92,8 @@ pipeline {
                     kubectl config view
 
                     echo "Deploying application to EKS..."
-                    kubectl apply -f deployment.yml
-                    kubectl apply -f service.yml
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f service.yaml
 
                     echo "Verifying deployment..."
                     kubectl get pods
@@ -106,12 +106,14 @@ pipeline {
 
     post {
         always {
-            emailext attachLog: true,
+            emailext(
+                attachLog: true,
                 subject: "'${currentBuild.result}'",
                 body: "Project: ${env.JOB_NAME}<br/>" +
                       "Build Number: ${env.BUILD_NUMBER}<br/>" +
                       "URL: ${env.BUILD_URL}<br/>",
-                to: 'manishwarsoma@gmail.com',
+                to: 'manishwarsoma@gmail.com'
+            )
         }
     }
 }
