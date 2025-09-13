@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        SCANNER_HOME = tool 'sonarcube-scanner'
+        SCANNER_HOME = tool 'sonarqube-scanner'
         DOCKER_IMAGE = 'manishwarsoma/bms:latest'
         EKS_CLUSTER_NAME = 'my-demo-eks'
         AWS_REGION = 'ap-northeast-3'
@@ -29,11 +29,11 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonarcube-server') {
+                withSonarQubeEnv('sonarqube-server') {
                     sh ''' 
-                    $SCANNER_HOME/bin/sonarcube-scanner \
-                        -Dsonar.projectName=BMS \
-                        -Dsonar.projectKey=BMS
+                    $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=BookMyShow \
+                        -Dsonar.projectKey=Bookmyshow_key
                     '''
                 }
             }
